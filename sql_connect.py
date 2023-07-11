@@ -28,7 +28,7 @@ session_id = "12345"
 user_message = "Hello!"
 
 msg = Message(message=user_message, session_id=session_id)
-response = process_message(msg)
+response = # call webservice which you integrated previously     you have to pass session id, and user id and user message and bot response to store values to db
 store_conversation(cnx, user_id=user_id, session_id=session_id, user_message=user_message, chatbot_message=response)
 cnx.close()
 
