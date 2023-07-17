@@ -60,7 +60,7 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
                 else:
                     risk_code_dict[risk_code_list[i]].append(idx + 1)
 
-                i = i + 1
+                i += 1
 
         if word == "tokio":
             tokio_dict['tokio'].append(idx)
@@ -79,6 +79,10 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
                     stamp_dict[text_list[idx + 2]].append(idx + 2)
                 elif "5332" in text_list[idx + 2]:
                     stamp_dict[text_list[idx + 2]].append(idx + 2)
+            elif re.search("written", text_list[idx + 1]) and re.search("line", text_list[idx + 2]):
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 3])
+                if writ_line_:
+                    written_line_dict[idx + 3] = writ_line_.group()
 
     for idx, word in enumerate(text_list):
         if word == "lic:":
@@ -98,8 +102,8 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
     risk_code = ""
     risk_code_index = list(risk_code_dict.keys())
     written_line_index = list(written_line_dict.keys())
-
     written_date_index = []
+
     for date, idx_value in written_date_dict.items():
         written_date_index.extend(idx_value)
 
