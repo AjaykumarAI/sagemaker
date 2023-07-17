@@ -63,23 +63,7 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
                 stamp_value = text_list[idx + 2]
                 if "510/1880" in stamp_value or "510" in stamp_value or "1880" in stamp_value or "5307" in stamp_value or "5332" in stamp_value:
                     stamp_dict[stamp_value].append(idx + 2)
-            elif "510/1880" in text_list[idx + 1]:
-                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
-                if writ_line_:
-                    written_line_dict[idx + 2] = writ_line_.group()
-            elif "510" in text_list[idx + 1]:
-                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
-                if writ_line_:
-                    written_line_dict[idx + 2] = writ_line_.group()
-            elif "1880" in text_list[idx + 1]:
-                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
-                if writ_line_:
-                    written_line_dict[idx + 2] = writ_line_.group()
-            elif "5307" in text_list[idx + 1]:
-                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
-                if writ_line_:
-                    written_line_dict[idx + 2] = writ_line_.group()
-            elif "5332" in text_list[idx + 1]:
+            elif re.search("510|1880", text_list[idx + 1]):
                 writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
                 if writ_line_:
                     written_line_dict[idx + 2] = writ_line_.group()
