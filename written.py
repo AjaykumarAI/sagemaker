@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 def xtract_written_line(text, text_new, reference_dict, writ_line_list):
     date_pattern = "(0[1-9]|[1-2]?[0-9]|3[01])\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(19[0-9]{2}|[2-9][0-9]{3})"
     written_line_dict = {}
@@ -34,7 +32,6 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
                 if i in master_risk_code_list:
                     risk_code_list.append(i)
 
-    i = 0
     for idx, word in enumerate(text_list):
         if word == "written":
             if text_list[idx + 1] == "line":
@@ -47,20 +44,14 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
 
         if word == "risk":
             if re.search("code", text_list[idx + 1]):
-                if i < len(risk_code_list):
-                    if risk_code_list[i] not in risk_code_dict:
-                        risk_code_dict[risk_code_list[i]] = [idx + 2]
-                    else:
-                        risk_code_dict[risk_code_list[i]].append(idx + 2)
+                if len(risk_code_list) > 0:
+                    risk_code = risk_code_list.pop(0)
+                    risk_code_dict[risk_code] = [idx + 2]
 
         if word.strip(":").strip(".").strip() == "description":
-            if i < len(risk_code_list):
-                if risk_code_list[i] not in risk_code_dict:
-                    risk_code_dict[risk_code_list[i]] = [idx + 1]
-                else:
-                    risk_code_dict[risk_code_list[i]].append(idx + 1)
-
-                i += 1
+            if len(risk_code_list) > 0:
+                risk_code = risk_code_list.pop(0)
+                risk_code_dict[risk_code] = [idx + 1]
 
         if word == "tokio":
             tokio_dict['tokio'].append(idx)
@@ -69,46 +60,42 @@ def xtract_written_line(text, text_new, reference_dict, writ_line_list):
 
         if word == "lloyd's":
             if text_list[idx + 1] == "stamp:":
-                if "510/1880" in text_list[idx + 2]:
-                    stamp_dict[text_list[idx + 2]].append(idx + 2)
-                elif "510" in text_list[idx + 2]:
-                    stamp_dict[text_list[idx + 2]].append(idx + 2)
-                elif "1880" in text_list[idx + 2]:
-                    stamp_dict[text_list[idx + 2]].append(idx + 2)
-                elif "5307" in text_list[idx + 2]:
-                    stamp_dict[text_list[idx + 2]].append(idx + 2)
-                elif "5332" in text_list[idx + 2]:
-                    stamp_dict[text_list[idx + 2]].append(idx + 2)
-            elif re.search("written", text_list[idx + 1]) and re.search("line", text_list[idx + 2]):
-                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 3])
+                stamp_value = text_list[idx + 2]
+                if "510/1880" in stamp_value or "510" in stamp_value or "1880" in stamp_value or "5307" in stamp_value or "5332" in stamp_value:
+                    stamp_dict[stamp_value].append(idx + 2)
+            elif "510/1880" in text_list[idx + 1]:
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
                 if writ_line_:
-                    written_line_dict[idx + 3] = writ_line_.group()
-
-    for idx, word in enumerate(text_list):
-        if word == "lic:":
-            stamp_dict[text_list[idx + 1]].append(idx + 1)
-        if word == "lloyds:":
-            stamp_dict[text_list[idx + 1]].append(idx + 1)
-
-    if len(tokio_dict['tokio']) > 0:
-        tokio_list = tokio_dict['tokio']
-    elif len(tokio_dict['KLN']) > 0:
-        tokio_list = tokio_dict['KLN']
-    else:
-        tokio_list = []
+                    written_line_dict[idx + 2] = writ_line_.group()
+            elif "510" in text_list[idx + 1]:
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
+                if writ_line_:
+                    written_line_dict[idx + 2] = writ_line_.group()
+            elif "1880" in text_list[idx + 1]:
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
+                if writ_line_:
+                    written_line_dict[idx + 2] = writ_line_.group()
+            elif "5307" in text_list[idx + 1]:
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
+                if writ_line_:
+                    written_line_dict[idx + 2] = writ_line_.group()
+            elif "5332" in text_list[idx + 1]:
+                writ_line_ = re.search("(\d*(\.\d+)?%)", text_list[idx + 2])
+                if writ_line_:
+                    written_line_dict[idx + 2] = writ_line_.group()
 
     written_line = ""
     written_date = ""
     risk_code = ""
     risk_code_index = list(risk_code_dict.keys())
     written_line_index = list(written_line_dict.keys())
-    written_date_index = []
 
+    written_date_index = []
     for date, idx_value in written_date_dict.items():
         written_date_index.extend(idx_value)
 
     try:
-        written_date_idx, min_index = min_diff(tokio_list, written_date_index)
+        written_date_idx, min_index = min_diff(tokio_dict['tokio'], written_date_index)
         for key, val in written_date_dict.items():
             if written_date_idx in val:
                 written_date = key
